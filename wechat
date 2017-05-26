@@ -1,0 +1,82 @@
+  private
+  def send_money 
+     nonce_str=getnoncestr 
+     mch_id='123456'
+     mch_billno=getbillno mch_id 
+     wxappid='wx123456'
+     client_ip='192.0.0.1'
+     re_openid=award.openid
+     # total_amount=award.price.to_s＊100
+     total_amount='100'
+     send_name='我的公司'
+     total_num='1'
+     wishing='感谢您的参与' 
+     act_name='分享抽奖'     
+     remark='开心就好'
+     scene_id='PRODUCT_2'
+     
+    arr={"nonce_str"=>nonce_str,"mch_billno"=>mch_billno,"mch_id"=>mch_id,"wxappid"=>wxappid,"client_ip"=>client_ip,"re_openid"=>re_openid,"total_amount"=>total_amount,"send_name"=>send_name,"total_num"=>total_num,"wishing"=>wishing,"act_name"=>act_name,"remark"=>remark,"scene_id"=>scene_id}
+    sign=getsign arr
+    
+     xml = Builder::XmlMarkup.new
+     result=  xml.xml{
+      xml.act_name act_name
+      xml.client_ip client_ip 
+      xml.mch_billno mch_billno                 
+      xml.mch_id mch_id  
+      xml.nonce_str nonce_str
+      xml.re_openid re_openid
+      xml.remark remark
+      xml.scene_id scene_id
+      xml.send_name send_name
+      xml.total_amount total_amount
+      xml.total_num total_num
+      xml.sign sign
+      xml.wishing wishing
+      xml.wxappid wxappid
+     }
+    uri = URI.parse('https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack')
+    cert = File.read("#{ Rails.root }/lib/jingyou_cert/apiclient_cert.pem")
+    key = File.read("#{ Rails.root }/lib/jingyou_cert/apiclient_key.pem")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true if uri.scheme == 'https'
+    http.cert = OpenSSL::X509::Certificate.new(cert)
+    http.key = OpenSSL::PKey::RSA.new(key, '秘钥')
+    http.ca_file = File.join("#{ Rails.root }/lib/jingyou_cert/rootca.pem")
+    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    http.start { http.request_post(uri.path, xml.to_xml) { |res| 
+     puts res.body
+      }    
+     }
+
+  end
+  
+  private
+  def getnoncestr
+    uuid = UUID.new
+    nonceStr = uuid.generate.delete "-"
+    nonce=nonceStr[0,31]
+    return nonce
+end
+  private
+  def getbillno mchid 
+    uuid = UUID.new
+    nonceStr = uuid.generate.delete "-"
+    nonce=nonceStr[0,10]
+    time = Time.now.strftime('%Y%m%d')
+    bill=mchid+time+nonce
+    return bill
+end
+   private
+  def getsign arr
+    arr=Hash[arr.sort]
+    ss=""
+    arr.each do |key,value|
+      if(value!="")
+      ss+=key.to_s+"="+value.to_s+"&"
+      end
+   end
+    ss+="key="+"appsercet"
+    sign=Digest::MD5.hexdigest(ss).upcase
+    return sign
+end
