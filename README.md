@@ -1,1 +1,1 @@
-# rails-
+# 学习rails中
