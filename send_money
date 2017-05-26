@@ -15,7 +15,21 @@
      remark='开心就好'
      scene_id='PRODUCT_2'
      
-    arr={"nonce_str"=>nonce_str,"mch_billno"=>mch_billno,"mch_id"=>mch_id,"wxappid"=>wxappid,"client_ip"=>client_ip,"re_openid"=>re_openid,"total_amount"=>total_amount,"send_name"=>send_name,"total_num"=>total_num,"wishing"=>wishing,"act_name"=>act_name,"remark"=>remark,"scene_id"=>scene_id}
+    arr={"nonce_str"=>nonce_str,
+    "mch_billno"=>mch_billno,
+    "mch_id"=>mch_id,
+    "wxappid"=>wxappid,
+    "client_ip"=>client_ip,
+    "re_openid"=>re_openid,
+    "total_amount"=>total_amount,
+    "send_name"=>send_name,
+    "total_num"=>total_num,
+    "wishing"=>wishing,
+    "act_name"=>act_name,
+    "remark"=>remark,
+    "scene_id"=>scene_id
+    }
+    #获取签名
     sign=getsign arr
     
      xml = Builder::XmlMarkup.new
